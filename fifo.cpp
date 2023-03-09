@@ -26,7 +26,7 @@ void fifo(std::string traceFile, int nFrames, int debugMode)
 
     // Initialize statistics
     int totalAccesses = 0, diskReads = 0, diskWrites = 0;
-    bool inPage = false;
+    bool isFound = false;
 
     // Process trace file
     unsigned addr;
@@ -35,82 +35,95 @@ void fifo(std::string traceFile, int nFrames, int debugMode)
     // define data structures
     std::vector<PageTableEntry> pageTable;
 
-    // Initialize pageTable with based on number of frames
-    pageTable.resize(nFrames);
-
-    // Initialize pageTable entries with valid = false and frame = i
-    for (int i = 0; i < nFrames; i++)
-    {
-        pageTable[i].rw = 'n';
-        pageTable[i].addr = 0;
-    }
-
-    while (file >> std::hex >> addr >> rw)
+    while (file >> std::hex >> addr >> rw) //read the traces' address and read/write bit
     {
         totalAccesses++;
 
         // Extract page number and offset from address
         unsigned pageNum = addr / PAGE_SIZE;
 
-        // Check if page is already in page table
-        for (int i = 0; i < nFrames; i++)
+        // Add the first entry to page table
+        if (pageTable.size() == 0)
+        { 
+            diskReads++;
+            PageTableEntry newEntry;
+            newEntry.addr = pageNum;
+            newEntry.rw = rw;
+            pageTable.push_back(newEntry);
+        }
+
+        else if (pageTable.size() < nFrames) // populate the page table
         {
-            if (pageTable.size() < nFrames)
+            isFound = false;
+            for (int i = 0; i < pageTable.size(); i++)
             {
                 if (pageTable[i].addr == pageNum) // if page is in page table
                 {
-                    inPage = true;
+                    isFound = true;
 
-                    if (rw == 'W') // overwrite regardless of R or W  in page table
+                    if (rw == 'W') // overwrite with W regardless of R or W  in page table
                     {
                         pageTable[i].rw = rw;
                     }
+                    break;
                 }
-                // create new page table entry and add it back to page table
+            }
+            if (isFound) //essentially go back to the for loop since we dont need to do anything
+            {
+                continue;
+            }
+            else
+            {
+                diskReads++;
                 PageTableEntry newEntry;
                 newEntry.addr = pageNum;
                 newEntry.rw = rw;
                 pageTable.push_back(newEntry);
+            }
         }
-            else // if page.size() >= nFrames,
-            {
-                for (int i = 0; i < nFrames; i++)
-                {
-                    if (pageTable[i].addr == pageNum) //check again if page is in page table
-                    {
-                        inPage = true;
 
-                        if (rw == 'W')
-                        {
-                            pageTable[i].rw = rw;
-                        }
-                    }
-                    if (inPage)
+        else // if pageTable.size() >= nFrames, when the pagetable is full and we need to do FIFO
+        {
+            isFound = false;
+            for (int i = 0; i < pageTable.size(); i++)
+            {
+                if (pageTable[i].addr == pageNum) // check again if page is in page table, and its found
+                {
+                    isFound = true;
+
+                    if (rw == 'W') // overwrite again
                     {
-                        continue;
+                        pageTable[i].rw = rw;
                     }
-                    else {
-                        pageTable.erase(pageTable.begin()); //remove first element in page table
-                        PageTableEntry newEntry;
-                        newEntry.addr = pageNum;
-                        newEntry.rw = rw;
-                        pageTable.push_back(newEntry);
-                    }
+                    break;
                 }
             }
-
-            
+            if (isFound)
+            {
+                continue;
+            }
+            else
+            {
+                if (pageTable[0].rw == 'W')
+                {
+                    diskWrites++;
+                }
+                // Not in page table
+                pageTable.erase(pageTable.begin()); // remove first element in page table
+                PageTableEntry newEntry;
+                newEntry.addr = pageNum;
+                newEntry.rw = rw;
+                pageTable.push_back(newEntry);
+                diskReads++;
+            }
         }
-
         // Print debug information if requested
-    if (debugMode)
-        {   
-        std::cout << "Address: " << addr << "RW: "<< rw <<  std::endl;
+        if (debugMode)
+        {
+            std::cout << "Address: " << addr << "RW: " << rw << std::endl;
         }
-    }
 
-
-    
+    } // end of while loop
 
     // Print final statistics
     std::cout << "Total event traces: " << totalAccesses << std::endl;
