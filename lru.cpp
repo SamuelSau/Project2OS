@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void lru(std::string traceFile, int nFrames, int debugMode)
+void lru(std::string traceFile, int nFrames, bool debugMode)
 {
     // Open trace file
     std::ifstream file(traceFile);
@@ -142,7 +142,7 @@ void lru(std::string traceFile, int nFrames, int debugMode)
         // Print debug information if requested
         if (debugMode)
         {
-            std::cout << "Address: " << addr << "RW: " << rw << std::endl;
+            std::cout << "Address: " << addr << " RW: " << rw << std::endl;
         }
 
     } // end of while loop
@@ -154,10 +154,3 @@ void lru(std::string traceFile, int nFrames, int debugMode)
 
     file.close();
 }
-
-/*
-update 'w' as normal
-//if found, you must delete and push back the page to the end of the vector
-when page table is full, pop out the front (least recently used)
-
-*/

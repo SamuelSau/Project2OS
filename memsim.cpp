@@ -17,7 +17,6 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-
     // Check for correct number of arguments
     if (argc < 4 || argc > 6)
     {
@@ -34,11 +33,19 @@ int main(int argc, char *argv[])
     if (algo == "vms" && argc == 6)
     {
         p = atoi(argv[4]);
-        
     }
-    else if (argc == 6)
+
+    else if (argc == 6) //for vms debug
     {
-        debug = (strcmp(argv[5], "debug") == 0);
+        if (strcmp(argv[5], "debug") == 0) {
+            debug = true;
+        }
+    }
+
+    else if (argc == 5){ //for fifo and lru debug
+        if (strcmp(argv[4], "debug") == 0) {
+            debug = true;
+        }
     }
 
     // Calculate the secondary and primary sizes

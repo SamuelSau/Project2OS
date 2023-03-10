@@ -4,8 +4,8 @@
 #include <string>
 
 /* Policy functions */
-void fifo(std::string traceFile, int nFrames, int debugMode);
-void lru(std::string traceFile, int nFrames, int debugMode);
-void vms(std::string traceFile, int nFrames, int p, int debugMode);
+void fifo(std::string traceFile, int nFrames, bool debugMode);
+void lru(std::string traceFile, int nFrames, bool debugMode);
+void vms(std::string traceFile, int nFrames, int p, bool debugMode);
 
 #endif /* POLICIES_HPP */
