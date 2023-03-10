@@ -40,16 +40,18 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
     unsigned addr;
     char rw;
 
+    bool isFirstRun = true;
+
     while (file >> std::hex >> addr >> rw) // read the traces' address and read/write bit
     {
         totalAccesses++;
-
+        
         // Extract page number and offset from address
         unsigned pageNum = addr / PAGE_SIZE;
-
+        
         // Add the first entry to page table
         if (pageTablePrimary.empty())
-        {
+        {   
             diskReads++;
             PageTableEntry newEntry;
             newEntry.addr = pageNum;
@@ -61,17 +63,17 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
         {
             isFound = false;
 
-            for (int i = 0; i < pageTablePrimary.size(); i++)
+            for (auto &page : pageTablePrimary)
             {
-                if (pageTablePrimary[i].addr == pageNum) // if page is in page table
+
+                if (page.addr == pageNum) // if page is in page table
                 {
                     isFound = true;
 
                     if (rw == 'W')
                     {
-                        pageTablePrimary[i].rw = rw;
+                        page.rw = 'W';
                     }
-
                     break;
                 }
             }
@@ -89,15 +91,16 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
         else // fifo page table is full
         {
             isFound = false;
-
-            for (int i = 0; i < pageTablePrimary.size(); i++)
+            for (auto &page : pageTablePrimary)
             {
-                if (pageTablePrimary[i].addr == pageNum) // if page is in page table
+
+                if (page.addr == pageNum) // if page is in page table
                 {
                     isFound = true;
+
                     if (rw == 'W')
                     {
-                        pageTablePrimary[i].rw = rw;
+                        page.rw = 'W';
                     }
                     break;
                 }
@@ -105,8 +108,10 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
 
             if (isFound == false) // if page is not in page table
             {
+                
                 if (pageTableSecondary.empty()) // if fifo is full and nothing in lru, then push front of vector to back of lru
                 {
+                       
                     // if (pageTablePrimary[0].rw == 'W')
                     // {
                     //     diskWrites++;
@@ -137,17 +142,19 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
                             PageTableEntry entryToPrimary;
                             entryToPrimary.addr = pageTableSecondary[i].addr;
 
-                            // if (rw == 'R' && pageTableSecondary[i].rw == 'W') // cannot overwrite a 'W' with a 'R', so change it
-                            // {
-                            //     rw = 'W';
-                            // }
-
-                            if (rw == 'W')
+                            if (rw == 'R' && pageTableSecondary[i].rw == 'W') // cannot overwrite a 'W' with a 'R', so change it
                             {
-                                pageTableSecondary[i].rw = rw;
+                                rw = 'W';
                             }
 
                             entryToPrimary.rw = pageTableSecondary[i].rw;
+
+                            if (rw == 'W')
+                            {
+                                entryToPrimary.rw = rw;
+                                
+                            }
+                            
                             pageTableSecondary.erase(pageTableSecondary.begin() + i);
                             pageTablePrimary.push_back(entryToPrimary);
                             isFound = true;
@@ -190,13 +197,16 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
                             {
                                 rw = 'W';
                             }
-                            if (rw == 'W')
-                            {
-                                pageTableSecondary[i].rw = rw;
-                            }
 
                             entryToPrimary.rw = pageTableSecondary[i].rw;
+                            
+                            if (rw == 'W')
+                            {
+                                entryToPrimary.rw = rw;
+                            }
+
                             pageTableSecondary.erase(pageTableSecondary.begin() + i);
+                            pageTablePrimary.push_back(entryToPrimary);
 
                             // before push back to pageTablePrimary, need to push front of pageTablePrimary to pageTableSecondary
                             PageTableEntry entryToLRU;
@@ -204,8 +214,7 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
                             entryToLRU.rw = pageTablePrimary[0].rw;
                             pageTablePrimary.erase(pageTablePrimary.begin()); // delete the front of pageTablePrimary
                             pageTableSecondary.push_back(entryToLRU);         // add back to pageTableSecondary
-
-                            pageTablePrimary.push_back(entryToPrimary);
+  
                             isFound = true;
                             break;
                         }
@@ -217,6 +226,7 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
                         {
                             diskWrites++;
                         }
+                        
                         diskReads++;
                         PageTableEntry entryToLRU;
                         entryToLRU.addr = pageTablePrimary[0].addr;
@@ -241,8 +251,8 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
 
     // Print final statistics
     std::cout << "Total event traces: " << totalAccesses << std::endl;
-    std::cout << "Total disk reads: " << diskReads << std::endl;
-    std::cout << "Total disk writes: " << diskWrites << std::endl;
+    std::cout << "Total disk reads: " << diskReads<< std::endl;
+    std::cout << "Total disk writes: " << diskWrites<< std::endl;
 
     file.close();
 }

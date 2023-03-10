@@ -75,13 +75,13 @@ void lru(std::string traceFile, int nFrames, bool debugMode)
             {
                 PageTableEntry deletedEntry;
                 deletedEntry.addr = pageTable[pageIndex].addr;
-                if(rw == 'R' && pageTable[pageIndex].rw == 'W'){
+                if (rw == 'R' && pageTable[pageIndex].rw == 'W')
+                {
                     rw = 'W';
                 }
                 deletedEntry.rw = rw;
                 pageTable.erase(pageTable.begin() + pageIndex);
                 pageTable.push_back(deletedEntry);
-                
             }
             else
             {
@@ -115,13 +115,13 @@ void lru(std::string traceFile, int nFrames, bool debugMode)
 
                 PageTableEntry deletedEntry;
                 deletedEntry.addr = pageTable[pageIndex].addr;
-                if(rw == 'R' && pageTable[pageIndex].rw == 'W'){
+                if (rw == 'R' && pageTable[pageIndex].rw == 'W')
+                {
                     rw = 'W';
-                }   
+                }
                 deletedEntry.rw = rw;
                 pageTable.erase(pageTable.begin() + pageIndex);
                 pageTable.push_back(deletedEntry);
-                
             }
             else
             {
