@@ -6,8 +6,4 @@ struct PageTableEntry {
     char rw;
 };
 
-
-
-
-
 #endif /* DATASTRUCTURES_HPP */

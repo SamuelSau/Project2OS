@@ -16,8 +16,8 @@ int main(int argc, char* argv[]){
 
     // Check for correct number of arguments
     if(argc < 4 || argc > 6) {
-        cout << "Usage: ./memsim <tracefile> nFrames algo p quiet/debug" << endl;
-        return 1;
+        cout << "Usage: memsim.exe <tracefile> nFrames algo p quiet/debug" << endl;
+        exit(1);
     }
     // Parse the arguments
     string traceFile = argv[1];
@@ -47,18 +47,18 @@ int main(int argc, char* argv[]){
     } 
     
     else if(algo == "vms") {
-        if ( p == 0 || s_size == 0) {
+        if ( p == 0 || s_size == 0) { //if p is 0, then degererate to FIFO
             fifo(traceFile, nFrames, debug);
         } 
-        else if (p == 100  || p_size == 0){
+        else if (p == 100  || p_size == 0){ // if p is 100, then degererate to LRU
             lru(traceFile, nFrames, debug);
         } 
-        else{
+        else{ //otherwise do segmented fifo algorithm
             vms(traceFile, nFrames, debug, p); 
             }
     }
     else {
-        cout << "Not valid algorithm!" << endl;
+        cout << "Invalid algorithm..." << endl;
         return 1;
     }
     return 0;

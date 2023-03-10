@@ -62,6 +62,7 @@ void lru(std::string traceFile, int nFrames, int debugMode)
                 if (pageTable[i].addr == pageNum) // if page is in page table
                 {
                     isFound = true;
+                    pageIndex = i;
 
                     if (rw == 'W') // overwrite with W regardless of R or W  in page table
                     {
@@ -70,14 +71,17 @@ void lru(std::string traceFile, int nFrames, int debugMode)
                     break;
                 }
             }
-            if (isFound) 
+            if (isFound)
             {
                 PageTableEntry deletedEntry;
                 deletedEntry.addr = pageTable[pageIndex].addr;
-                deletedEntry.rw = pageTable[pageIndex].rw;
-                pageTable.erase(std::find(pageTable.begin(), pageTable.end(), pageNum)); 
-                pageTable.push_back(deletedEntry);                                       
-                continue;
+                if(rw == 'R' && pageTable[pageIndex].rw == 'W'){
+                    rw = 'W';
+                }
+                deletedEntry.rw = rw;
+                pageTable.erase(pageTable.begin() + pageIndex);
+                pageTable.push_back(deletedEntry);
+                
             }
             else
             {
@@ -98,6 +102,7 @@ void lru(std::string traceFile, int nFrames, int debugMode)
                 {
                     isFound = true;
                     pageIndex = i;
+
                     if (rw == 'W') // overwrite again
                     {
                         pageTable[i].rw = rw;
@@ -106,24 +111,32 @@ void lru(std::string traceFile, int nFrames, int debugMode)
                 }
             }
             if (isFound)
-            { // MOVE FROM WHEREVER FOUND TO MOST RECENTLY USED
+            { // check the operation first
+
                 PageTableEntry deletedEntry;
                 deletedEntry.addr = pageTable[pageIndex].addr;
-                deletedEntry.rw = pageTable[pageIndex].rw;
-                pageTable.erase(std::find(pageTable.begin(), pageTable.end(), pageNum)); 
-                pageTable.push_back(deletedEntry);                                       
-                continue;
+                if(rw == 'R' && pageTable[pageIndex].rw == 'W'){
+                    rw = 'W';
+                }   
+                deletedEntry.rw = rw;
+                pageTable.erase(pageTable.begin() + pageIndex);
+                pageTable.push_back(deletedEntry);
+                
             }
             else
             {
-                
+                if (pageTable[0].rw == 'W') // before we pop it out, check if it is 'W' and if so, increment diskWrites
+                {
+                    diskWrites++;
+                }
+
+                // not in page table, so we remove front of vector then push new page table entry to back
                 diskReads++;
                 PageTableEntry newEntry;
-                newEntry.addr = pageTable[0].addr;
-                newEntry.rw = pageTable[0].rw;
-                pageTable.push_back(newEntry);
+                newEntry.addr = pageNum;
+                newEntry.rw = rw;
                 pageTable.erase(pageTable.begin());
-
+                pageTable.push_back(newEntry);
             }
         }
         // Print debug information if requested
@@ -141,3 +154,10 @@ void lru(std::string traceFile, int nFrames, int debugMode)
 
     file.close();
 }
+
+/*
+update 'w' as normal
+//if found, you must delete and push back the page to the end of the vector
+when page table is full, pop out the front (least recently used)
+
+*/
