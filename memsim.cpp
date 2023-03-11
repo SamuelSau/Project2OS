@@ -64,11 +64,11 @@ int main(int argc, char *argv[])
 
     else if (algo == "vms")
     {
-        if (p == 0 || s_size == 0)
+        if (p == 0 || p == 1 || s_size == 0)
         { // if p is 0, then degererate to FIFO
             fifo(traceFile, nFrames, debug);
         }
-        else if (p == 100 || p_size == 0)
+        else if (p == 100 || p == 99 || p_size == 0)
         { // if p is 100, then degererate to LRU
             lru(traceFile, nFrames, debug);
         }

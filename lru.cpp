@@ -148,9 +148,9 @@ void lru(std::string traceFile, int nFrames, bool debugMode)
     } // end of while loop
 
     // Print final statistics
-    std::cout << "Total event traces: " << totalAccesses << std::endl;
-    std::cout << "Total disk reads: " << diskReads << std::endl;
-    std::cout << "Total disk writes: " << diskWrites << std::endl;
+    std::cout << "Trace Count: " << totalAccesses << std::endl;
+    std::cout << "Read Count: " << diskReads << std::endl;
+    std::cout << "Write Count: " << diskWrites << std::endl;
 
     file.close();
 }
