@@ -63,7 +63,7 @@ void lru(std::string traceFile, int nFrames, bool debugMode)
                 {
                     isFound = true;
                     pageIndex = i;
-
+                    
                     if (rw == 'W') // overwrite with W regardless of R or W  in page table
                     {
                         pageTable[i].rw = rw;

@@ -12,8 +12,8 @@
 
 using namespace std;
 
-void vms(std::string traceFile, int nFrames, int p, bool debugMode)
-{
+ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
+ {
     // Open trace file
     std::ifstream file(traceFile);
 
@@ -26,6 +26,7 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
     // Initialize statistics
     int totalAccesses = 0, diskReads = 0, diskWrites = 0;
     bool isFound = false;
+    int pageIndex = 0;
 
     // Calculate the secondary and primary cache sizes
     int s_size = (nFrames * p) / 100;
@@ -54,6 +55,7 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
                 if (page.addr == pageNum) // if page is in page table
                 {
                     isFound = true;
+
                     if (rw == 'W')
                     {
                         page.rw = 'W';
@@ -61,42 +63,55 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
                     break;
                 }
             }
+            if(isFound){
+                continue;
+            }
 
-            if (!isFound) // if page is not in page table
+            else if (!isFound) // if page is not in page table
             {
-                if (pageTableSecondary.size() == s_size) 
+                if (pageTableSecondary.size() == s_size)
                 {
                     isFound = false;
                     // if page is in lru, then remove from lru and push to fifo
-                    for (int i = 0; i < s_size; i++)
+                    for (int i = 0; i < pageTablePrimary.size(); i++)
                     {
                         if (pageTableSecondary[i].addr == pageNum) // if in lru table
                         {
-                            PageTableEntry entryToPrimary;
-                            entryToPrimary.addr = pageTableSecondary[i].addr;
-                            entryToPrimary.rw = pageTableSecondary[i].rw;
+
+                            isFound = true;
+                            pageIndex = i;
 
                             if (rw == 'W')
                             {
-                                entryToPrimary.rw = 'W';
+                                pageTableSecondary[i].rw = rw;
                             }
 
-                            pageTableSecondary.erase(pageTableSecondary.begin() + i);
-                            pageTablePrimary.push_back(entryToPrimary);
-
-                            // before push back to pageTablePrimary, need to push front of pageTablePrimary to pageTableSecondary
-                            PageTableEntry entryToLRU;
-                            entryToLRU.addr = pageTablePrimary[0].addr;
-                            entryToLRU.rw = pageTablePrimary[0].rw;
-                            pageTablePrimary.erase(pageTablePrimary.begin()); // delete the front of pageTablePrimary
-                            pageTableSecondary.push_back(entryToLRU);         // add back to pageTableSecondary
-
-                            isFound = true;
                             break;
                         }
                     }
+                    if (isFound)
+                    {
+                        PageTableEntry entryToPrimary;
+                        entryToPrimary.addr = pageTableSecondary[pageIndex].addr;
+                        entryToPrimary.rw = pageTableSecondary[pageIndex].rw;
+
+                        if (rw == 'R' && pageTableSecondary[pageIndex].rw == 'W')
+                        {
+                            entryToPrimary.rw = 'W';
+                        }
+                        
+                        pageTableSecondary.erase(pageTableSecondary.begin() + pageIndex);
+                        pageTablePrimary.push_back(entryToPrimary);
+
+                        // before push back to pageTablePrimary, need to push front of pageTablePrimary to pageTableSecondary
+                        PageTableEntry entryToLRU;
+                        entryToLRU.addr = pageTablePrimary[0].addr;
+                        entryToLRU.rw = pageTablePrimary[0].rw;
+                        pageTablePrimary.erase(pageTablePrimary.begin()); // delete the front of pageTablePrimary
+                        pageTableSecondary.push_back(entryToLRU);         // add back to pageTableSecondary
+                    }
                     // page not found in lru, then push front of fifo to lru and new push back to fifo
-                    if (!isFound)
+                    else if (!isFound)
                     {
                         if (pageTableSecondary[0].rw == 'W')
                         {
@@ -112,7 +127,7 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
                         PageTableEntry newEntry;
                         newEntry.addr = pageNum;
                         newEntry.rw = rw;
-                        
+
                         pageTableSecondary.erase(pageTableSecondary.begin()); // delete the front of pageTablePrimary
                         pageTablePrimary.erase(pageTablePrimary.begin());
                         pageTableSecondary.push_back(entryToLRU); // add back to pageTableSecondary
@@ -133,4 +148,4 @@ void vms(std::string traceFile, int nFrames, int p, bool debugMode)
     std::cout << "Write Count: " << diskWrites << std::endl;
 
     file.close();
-}
+ }
