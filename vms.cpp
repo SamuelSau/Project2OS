@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void vms(std::string traceFile, int nFrames, int p, bool debugMode)
+void vms(const char* traceFile, int nFrames, int p, bool debugMode)
 {
     // Open trace file
     std::ifstream file(traceFile);

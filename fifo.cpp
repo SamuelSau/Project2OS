@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void fifo(std::string traceFile, int nFrames, bool debugMode)
+void fifo(const char* traceFile, int nFrames, bool debugMode)
 {
     // Open trace file
     std::ifstream file(traceFile);

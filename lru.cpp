@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void lru(std::string traceFile, int nFrames, bool debugMode)
+void lru(const char *traceFile, int nFrames, bool debugMode)
 {
     // Open trace file
     std::ifstream file(traceFile);
@@ -63,7 +63,7 @@ void lru(std::string traceFile, int nFrames, bool debugMode)
                 {
                     isFound = true;
                     pageIndex = i;
-                    
+
                     if (rw == 'W') // overwrite with W regardless of R or W  in page table
                     {
                         pageTable[i].rw = rw;
