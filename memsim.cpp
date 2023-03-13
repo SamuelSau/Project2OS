@@ -1,5 +1,5 @@
-//g++ memsim.cpp lru.cpp fifo.cpp vms.cpp -o memsim
-//memsim.exe bzip.trace 64 vms 50 quiet 
+// g++ memsim.cpp lru.cpp fifo.cpp vms.cpp -o memsim
+// memsim.exe bzip.trace 64 vms 50 quiet
 
 #include "dataStructures.hpp"
 #include "policies.hpp"
@@ -24,26 +24,29 @@ int main(int argc, char *argv[])
         exit(1);
     }
     // Parse the arguments
-    string traceFile = argv[1];
+    const char *traceFile = argv[1];
     int nFrames = atoi(argv[2]);
     string algo = argv[3];
     int p = 0; // represents the percentage for vms
     bool debug = false;
-    
+
     if (algo == "vms" && argc == 6)
     {
         p = atoi(argv[4]);
     }
 
-    else if (argc == 6) //for vms debug
+    else if (argc == 6) // for vms debug
     {
-        if (strcmp(argv[5], "debug") == 0) {
+        if (strcmp(argv[5], "debug") == 0)
+        {
             debug = true;
         }
     }
 
-    else if (argc == 5){ //for fifo and lru debug
-        if (strcmp(argv[4], "debug") == 0) {
+    else if (argc == 5)
+    { // for fifo and lru debug
+        if (strcmp(argv[4], "debug") == 0)
+        {
             debug = true;
         }
     }
