@@ -66,7 +66,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
             isFound = false;
 
             //for (auto &page : pageTablePrimary)
-            for(int i = 0; i < pageTablePrimary.size(); i++)
+            for(int i = 0; i < int(pageTablePrimary.size()); i++)
             {
 
                 if (pageTablePrimary[i].addr == pageNum) // if page is in page table
@@ -135,7 +135,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
                 {
                     isFound = false;
                     // if page is in lru, then remove from lru and push back to fifo
-                    for (int i = 0; i < pageTableSecondary.size(); i++)
+                    for (int i = 0; i < int(pageTableSecondary.size()); i++)
                     {
                         if (pageTableSecondary[i].addr == pageNum)
                         {
