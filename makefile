@@ -1,2 +1,11 @@
+CXXFLAGS = -W
+
+.PHONY: all clean
+
+all: memsim
+
 memsim: memsim.cpp lru.cpp fifo.cpp vms.cpp
-	g++ memsim.cpp lru.cpp fifo.cpp vms.cpp -o memsim
+        g++ $(CXXFLAGS) $^ -o $@
+
+clean:
+        rm -f memsim

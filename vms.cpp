@@ -65,16 +65,17 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
         {
             isFound = false;
 
-            for (auto &page : pageTablePrimary)
+            //for (auto &page : pageTablePrimary)
+            for(int i = 0; i < pageTablePrimary.size(); i++)
             {
 
-                if (page.addr == pageNum) // if page is in page table
+                if (pageTablePrimary[i].addr == pageNum) // if page is in page table
                 {
                     isFound = true;
 
                     if (rw == 'W')
                     {
-                        page.rw = 'W';
+                        pageTablePrimary[i].rw = 'W';
                     }
                 break;
                 }
@@ -94,16 +95,16 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
         else // fifo page table is full
         {
             isFound = false;
-            for (auto &page : pageTablePrimary)
+            for (int i = 0; i < pageTablePrimary.size(); i++)
             {
 
-                if (page.addr == pageNum) // if page is in page table
+                if (pageTablePrimary[i].addr == pageNum) // if page is in page table
                 {
                     isFound = true;
 
                     if (rw == 'W')
                     {
-                        page.rw = 'W';
+                        pageTablePrimary[i].rw = 'W';
                     }
                     break;
                 }
@@ -118,7 +119,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
                     // push the front of pageTablePrimary to pageTableSecondary
                     diskReads++;
                     PageTableEntry entryToLRU;
-                    auto itPrimary = pageTablePrimary.begin();
+                    typename std::vector<PageTableEntry>::iterator itPrimary = pageTablePrimary.begin();
                     entryToLRU.addr = itPrimary->addr;
                     entryToLRU.rw = itPrimary->rw;
                     pageTablePrimary.erase(itPrimary);        // delete the front of pageTablePrimary
@@ -139,7 +140,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
                         if (pageTableSecondary[i].addr == pageNum)
                         {
                             PageTableEntry entryToPrimary;
-                            auto itSecondary = pageTableSecondary.begin();
+                            typename std::vector<PageTableEntry>::iterator itSecondary = pageTableSecondary.begin();
                             entryToPrimary.addr = pageTableSecondary[i].addr;
 
                             if (rw == 'W')
@@ -167,7 +168,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
 
                         diskReads++;
                         PageTableEntry entryToLRU;
-                        auto itPrimary = pageTablePrimary.begin();
+                        typename std::vector<PageTableEntry>::iterator itPrimary = pageTablePrimary.begin();
                         entryToLRU.addr = itPrimary->addr;
                         entryToLRU.rw = itPrimary->rw;
                         pageTablePrimary.erase(itPrimary);        // delete the front of pageTablePrimary
@@ -201,7 +202,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
                     if (isFound)
                     {
                         PageTableEntry entryToPrimary;
-                        auto itSecondary = pageTableSecondary.begin();
+                        typename std::vector<PageTableEntry>::iterator itSecondary = pageTableSecondary.begin();
                         entryToPrimary.addr = pageTableSecondary[pageIndex].addr;
 
                         if (rw == 'W')
@@ -218,7 +219,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
                         pageTablePrimary.push_back(entryToPrimary);
                         // before push back to pageTablePrimary, need to push front of pageTablePrimary to pageTableSecondary
                         PageTableEntry entryToLRU;
-                        auto itPrimary = pageTablePrimary.begin();
+                        typename std::vector<PageTableEntry>::iterator itPrimary = pageTablePrimary.begin();
                         entryToLRU.addr = itPrimary->addr;
                         entryToLRU.rw = itPrimary->rw;
                         pageTablePrimary.erase(itPrimary);        // delete the front of pageTablePrimary
@@ -227,7 +228,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
                     // page not found in lru, then push front of fifo to lru and new push back to fifo
                     else
                     {
-                        auto itSecondary = pageTableSecondary.begin();
+                        typename std::vector<PageTableEntry>::iterator itSecondary = pageTableSecondary.begin();
                         if (itSecondary->rw == 'W')
                         {
                             diskWrites++;
@@ -235,7 +236,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
 
                         diskReads++;
                         PageTableEntry entryToLRU;
-                        auto itPrimary = pageTablePrimary.begin();
+                        typename std::vector<PageTableEntry>::iterator itPrimary = pageTablePrimary.begin();
                         
                         entryToLRU.addr = itPrimary->addr;
                         entryToLRU.rw = itPrimary->rw;
