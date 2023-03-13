@@ -53,11 +53,11 @@ void lru(const char *traceFile, int nFrames, bool debugMode)
             pageTable.push_back(newEntry); // most recently used page is at the end of the vector, therefore least recently used is at the beginning of vector
         }
 
-        else if (pageTable.size() < nFrames) // populate the page table
+        else if (int(pageTable.size()) < nFrames) // populate the page table
         {
             isFound = false;
 
-            for (int i = 0; i < pageTable.size(); i++)
+            for (int i = 0; i < int(pageTable.size()); i++)
             {
                 if (pageTable[i].addr == pageNum) // if page is in page table
                 {
@@ -96,7 +96,7 @@ void lru(const char *traceFile, int nFrames, bool debugMode)
         else // if pageTable.size() >= nFrames, when the pagetable is full and we need to do FIFO
         {
             isFound = false;
-            for (int i = 0; i < pageTable.size(); i++)
+            for (int i = 0; i < int(pageTable.size()); i++)
             {
                 if (pageTable[i].addr == pageNum) // check again if page is in page table, and its found
                 {

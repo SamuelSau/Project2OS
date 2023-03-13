@@ -61,7 +61,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
             pageTablePrimary.push_back(newEntry); // most recently used page is at the end of the vector, therefore least recently used is at the beginning of vector
         }
 
-        else if (pageTablePrimary.size() < p_size) // populate the page table
+        else if (int(pageTablePrimary.size()) < p_size) // populate the page table
         {
             isFound = false;
 
@@ -95,7 +95,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
         else // fifo page table is full
         {
             isFound = false;
-            for (int i = 0; i < pageTablePrimary.size(); i++)
+            for (int i = 0; i < int(pageTablePrimary.size()); i++)
             {
 
                 if (pageTablePrimary[i].addr == pageNum) // if page is in page table
@@ -131,7 +131,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
                     pageTablePrimary.push_back(newEntry);
                 }
 
-                else if (pageTableSecondary.size() < s_size) // if lru is not full and fifo is full
+                else if (int(pageTableSecondary.size()) < s_size) // if lru is not full and fifo is full
                 {
                     isFound = false;
                     // if page is in lru, then remove from lru and push back to fifo
@@ -184,7 +184,7 @@ void vms(const char* traceFile, int nFrames, int p, bool debugMode)
                 {
                     isFound = false;
                     // if page is in lru, then remove from lru and push to fifo
-                    for (int i = 0; i < pageTableSecondary.size(); i++)
+                    for (int i = 0; i < int(pageTableSecondary.size()); i++)
                     {
                         if (pageTableSecondary[i].addr == pageNum) // if in lru table
                         {
